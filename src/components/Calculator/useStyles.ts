@@ -9,7 +9,9 @@ import {
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
-      color: "red",
+      display: "flex",
+      flexDirection: "column",
+      width: "80%",
     },
   })
 );
