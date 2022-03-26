@@ -1,6 +1,8 @@
 # Lundegaard Calculator
 
-## Launch BE
+How to launch this application:
+
+### Launch BE
 
 Launch backend server:
 
