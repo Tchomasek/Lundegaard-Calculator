@@ -10,5 +10,6 @@ Launch backend server:
 ## Launch React project
 
 Launch React Calculator project:
+  dfg
 
     yarn start
