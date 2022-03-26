@@ -3,11 +3,13 @@ import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 export interface CalculatorState {
   money: number;
   months: number;
+  insurance: boolean;
 }
 
 const initialState = {
   money: 10000,
   months: 24,
+  insurance: false,
 } as CalculatorState;
 
 export const calculatorSlice = createSlice({

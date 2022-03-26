@@ -1,9 +1,8 @@
 import {
-  Box,
+  Button,
   CircularProgress,
   FormControl,
   FormControlLabel,
-  FormLabel,
   Grid,
   Radio,
   RadioGroup,
@@ -11,7 +10,6 @@ import {
   TextField,
   Typography,
 } from "@material-ui/core";
-import { useDebouncedCallback } from "use-debounce";
 import { useDispatch, useSelector } from "react-redux";
 import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
@@ -42,7 +40,7 @@ const MARKS_MONTHS = [
   },
   {
     value: 96,
-    label: "94 měsíců",
+    label: "96 měsíců",
   },
 ];
 const INSURANCE = 100;
@@ -50,52 +48,16 @@ const INSURANCE = 100;
 export const Calculator: React.FC = () => {
   const classes = useStyles();
   const dispatch = useDispatch();
-  const { money, months } = useSelector((state: RootState) => state.calculator);
+  const { money, months, insurance } = useSelector(
+    (state: RootState) => state.calculator
+  );
   const [result, setResult] = useState<number>();
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [spinnerIsVisible, setSpinnerIsVisible] = useState(false);
-  const [insurance, setInsurance] = useState<boolean>(false);
-  const [resultWithInsurance, setResultWithInsurance] = useState<number>();
+  const [displayedMoney, setDisplayedMoney] = useState<number>(10000);
+  const [displayedMonths, setDisplayedMonths] = useState<number>(24);
 
-  const adjustMoneySlider = (
-    event: React.ChangeEvent<{}>,
-    newValue: number | number[]
-  ) => {
-    dispatch(updateCalculatorState({ money: newValue as number }));
-  };
-
-  const adjustMoneyText = (event: React.ChangeEvent<HTMLInputElement>) => {
-    let value = event.target.value;
-    if (!value) {
-      value = "0";
-    }
-    value.replace(/[^0-9]/, "");
-    const numberValue = Number(value);
-    if (numberValue <= MAX_MONEY && numberValue >= MIN_MONEY) {
-      dispatch(updateCalculatorState({ money: numberValue }));
-    }
-  };
-
-  const adjustMonthsSlider = (
-    event: React.ChangeEvent<{}>,
-    newValue: number | number[]
-  ) => {
-    dispatch(updateCalculatorState({ months: newValue as number }));
-  };
-
-  const adjustMonthsText = (event: React.ChangeEvent<HTMLInputElement>) => {
-    let value = event.target.value;
-    if (!value) {
-      value = "0";
-    }
-    value.replace(/[^0-9]/, "");
-    const numberValue = Number(value);
-    if (numberValue <= MAX_MONEY && numberValue >= MIN_MONEY) {
-      dispatch(updateCalculatorState({ months: numberValue }));
-    }
-  };
-
-  const call = async () => {
+  const sendRequest = async () => {
     await axios
       .get("/calculator", {
         params: {
@@ -111,14 +73,106 @@ export const Calculator: React.FC = () => {
       });
   };
 
+  const adjustMoneySlider = (
+    event: React.ChangeEvent<{}>,
+    newValue: number | number[]
+  ) => {
+    dispatch(updateCalculatorState({ money: newValue as number }));
+    setDisplayedMoney(newValue as number);
+  };
+
+  const changeMoneyTextInput = (event: React.ChangeEvent<HTMLInputElement>) => {
+    let value = event.target.value;
+    if (!value) {
+      value = "0";
+    }
+    // remove letters
+    value = value.replace(/[^0-9]/, "");
+    const numberValue = Number(value);
+    setDisplayedMoney(numberValue);
+    if (numberValue <= MAX_MONEY && numberValue >= MIN_MONEY) {
+      dispatch(updateCalculatorState({ money: numberValue }));
+    }
+  };
+
+  const sendMoneyTextInputBlur = () => {
+    if (displayedMoney < MIN_MONEY) {
+      setDisplayedMoney(MIN_MONEY);
+      dispatch(updateCalculatorState({ money: MIN_MONEY }));
+      sendRequest();
+    } else if (displayedMoney > MAX_MONEY) {
+      setDisplayedMoney(MAX_MONEY);
+      dispatch(updateCalculatorState({ money: MAX_MONEY }));
+      sendRequest();
+    } else {
+      const roundedMoney = Math.floor(displayedMoney / 5000) * 5000;
+      dispatch(updateCalculatorState({ money: roundedMoney }));
+      setDisplayedMoney(roundedMoney);
+    }
+  };
+
+  const sendMoneyTextInputSubmit = (
+    event: React.FormEvent<HTMLFormElement>
+  ) => {
+    event.preventDefault();
+    sendMoneyTextInputBlur();
+  };
+
+  const adjustMonthsSlider = (
+    event: React.ChangeEvent<{}>,
+    newValue: number | number[]
+  ) => {
+    dispatch(updateCalculatorState({ months: newValue as number }));
+    setDisplayedMonths(newValue as number);
+  };
+
+  const changeMonthsTextInput = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    let value = event.target.value;
+    if (!value) {
+      value = "0";
+    }
+    // remove letters
+    value = value.replace(/[^0-9]/, "");
+    const numberValue = Number(value);
+    setDisplayedMonths(numberValue);
+    if (numberValue <= MAX_MONTHS && numberValue >= MIN_MONTHS) {
+      dispatch(updateCalculatorState({ months: numberValue }));
+    }
+  };
+
+  const sendMonthsTextInputBlur = () => {
+    if (displayedMonths < MIN_MONTHS) {
+      setDisplayedMonths(MIN_MONTHS);
+      dispatch(updateCalculatorState({ months: MIN_MONTHS }));
+      sendRequest();
+    } else if (displayedMonths > MAX_MONTHS) {
+      setDisplayedMonths(MAX_MONTHS);
+      dispatch(updateCalculatorState({ months: MAX_MONTHS }));
+      sendRequest();
+    } else {
+      const roundedMonths = Math.floor(displayedMonths / 5000) * 5000;
+      dispatch(updateCalculatorState({ months: roundedMonths }));
+      setDisplayedMonths(roundedMonths);
+    }
+  };
+
+  const sendMonthsTextInputSubmit = (
+    event: React.FormEvent<HTMLFormElement>
+  ) => {
+    event.preventDefault();
+    sendMonthsTextInputBlur();
+  };
+
   useEffect(() => {
     if (timer.current !== null) {
       clearTimeout(timer.current);
     }
-    // this timer will send API call only when user stoped moving with slider for half a second
+    // this timer will send API call only when user stoped moving with slider for at least half a second
     timer.current = setTimeout(() => {
       setSpinnerIsVisible(true);
-      call();
+      sendRequest();
       timer.current = null;
     }, SLIDER_TIMEOUT);
   }, [money, months]);
@@ -129,20 +183,16 @@ export const Calculator: React.FC = () => {
   }, [result]);
 
   const adjustInsurance = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setInsurance(event.target.value === "true" ? true : false);
+    dispatch(
+      updateCalculatorState({
+        insurance: event.target.value === "true" ? true : false,
+      })
+    );
   };
-
-  useEffect(() => {
-    {
-      insurance
-        ? setResultWithInsurance((result as number) + INSURANCE)
-        : setResultWithInsurance(result);
-    }
-  }, [insurance, result]);
 
   return (
     <Grid className={classes.root}>
-      <Grid container>
+      <Grid container className={classes.inputWrapper}>
         <Grid container className={classes.row}>
           <Typography>Kolik si chci půjčit</Typography>
           <Grid container className={classes.input}>
@@ -155,12 +205,15 @@ export const Calculator: React.FC = () => {
               className={classes.slider}
               marks={MARKS_MONEY}
             />
-            <TextField
-              className={classes.textField}
-              variant="outlined"
-              value={money}
-              onChange={adjustMoneyText}
-            />
+            <form onSubmit={sendMoneyTextInputSubmit}>
+              <TextField
+                className={classes.textField}
+                variant="outlined"
+                value={displayedMoney}
+                onChange={changeMoneyTextInput}
+                onBlur={sendMoneyTextInputBlur}
+              />
+            </form>
           </Grid>
         </Grid>
         <Grid container className={classes.row}>
@@ -175,12 +228,15 @@ export const Calculator: React.FC = () => {
               className={classes.slider}
               marks={MARKS_MONTHS}
             />
-            <TextField
-              className={classes.textField}
-              variant="outlined"
-              value={months}
-              onChange={adjustMonthsText}
-            />
+            <form onSubmit={sendMonthsTextInputSubmit}>
+              <TextField
+                className={classes.textField}
+                variant="outlined"
+                value={displayedMonths}
+                onChange={changeMonthsTextInput}
+                onBlur={sendMonthsTextInputBlur}
+              />
+            </form>
           </Grid>
         </Grid>
         <FormControl component="fieldset">
@@ -198,13 +254,34 @@ export const Calculator: React.FC = () => {
             />
           </RadioGroup>
         </FormControl>
+        <Typography className={classes.info}>
+          Jelikož je půjčování peněz naším koníčkem, nebudeme Vám účtovat žádné
+          úroky.
+        </Typography>
       </Grid>
-      <Grid container className={classes.result}>
-        {spinnerIsVisible ? (
-          <CircularProgress />
-        ) : (
-          <Typography>{resultWithInsurance}</Typography>
-        )}
+      <Grid container classes={{ root: classes.result }}>
+        <Grid
+          container
+          direction="column"
+          justifyContent="center"
+          alignItems="center"
+        >
+          <Typography className={classes.monthlyPayText}>
+            Měsíčně zaplatíte:
+          </Typography>
+          <Grid className={classes.monthlyPay}>
+            {spinnerIsVisible ? (
+              <CircularProgress />
+            ) : (
+              <Typography>
+                {insurance ? (result as number) + 100 : result} Kč
+              </Typography>
+            )}
+          </Grid>
+        </Grid>
+        <Button variant="contained" color="primary">
+          Pokračovat
+        </Button>
       </Grid>
     </Grid>
   );

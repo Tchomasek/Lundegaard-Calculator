@@ -13,12 +13,12 @@ const useStyles = makeStyles((theme: Theme) =>
       flexDirection: "row",
       position: "fixed",
       top: "25%",
-      left: "10%",
-      width: "80%",
-      height: "50%",
+      left: "20%",
+      width: "60%",
       padding: theme.spacing(2),
       alignItems: "flex-start",
       border: "1px solid rgba(0, 0, 0, 0.4)",
+      borderRadius: 4,
     },
     row: {
       padding: theme.spacing(2),
@@ -26,11 +26,15 @@ const useStyles = makeStyles((theme: Theme) =>
       flexDirection: "column",
     },
     result: {
-      width: 200,
-      height: 400,
+      width: theme.spacing(25),
+      height: theme.spacing(50),
       alignItems: "center",
-      justifyContent: "center",
-      backgroundColor: "#2d2ddb",
+      justifyContent: "space-around",
+      flexDirection: "column",
+      display: "flex",
+      borderRadius: 4,
+      borderLeft: "1px solid rgba(0, 0, 0, 0.4)",
+      paddingLeft: 16,
     },
     slider: {
       margin: theme.spacing(1),
@@ -43,6 +47,18 @@ const useStyles = makeStyles((theme: Theme) =>
     textField: {
       margin: theme.spacing(2),
       marginLeft: theme.spacing(4),
+    },
+    monthlyPay: {
+      height: theme.spacing(12),
+    },
+    info: {
+      paddingTop: theme.spacing(2),
+    },
+    monthlyPayText: {
+      paddingBottom: theme.spacing(1),
+    },
+    inputWrapper: {
+      flexDirection: "column",
     },
   })
 );

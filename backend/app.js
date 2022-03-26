@@ -8,11 +8,8 @@ app.get("/calculator", (req, res) => {
   const months = Number(req.query.months);
   // Simulated lag to show spinner
   setTimeout(() => {
-    console.log(money / months);
     res.send(String(money / months));
   }, 500);
 });
 
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
-});
+app.listen(port, () => {});
