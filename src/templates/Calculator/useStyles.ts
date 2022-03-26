@@ -15,7 +15,7 @@ const useStyles = makeStyles((theme: Theme) =>
       top: "25%",
       left: "20%",
       width: "60%",
-      padding: theme.spacing(2),
+      padding: theme.spacing(4),
       alignItems: "flex-start",
       border: "1px solid rgba(0, 0, 0, 0.4)",
       borderRadius: 4,
@@ -27,7 +27,7 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     result: {
       width: theme.spacing(25),
-      height: theme.spacing(50),
+      height: theme.spacing(55),
       alignItems: "center",
       justifyContent: "space-around",
       flexDirection: "column",
@@ -40,13 +40,24 @@ const useStyles = makeStyles((theme: Theme) =>
       margin: theme.spacing(1),
     },
     input: {
+      display: "flex",
       flexDirection: "row",
       flexWrap: "nowrap",
       alignItems: "center",
     },
+    inputWithUnit: {
+      display: "flex",
+      alignItems: "center",
+    },
     textField: {
+      width: theme.spacing(15),
+      display: "flex",
       margin: theme.spacing(2),
       marginLeft: theme.spacing(4),
+      "& .MuiFormHelperText-root": {
+        color: "red",
+        margin: 0,
+      },
     },
     monthlyPay: {
       height: theme.spacing(12),
@@ -59,6 +70,13 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     inputWrapper: {
       flexDirection: "column",
+    },
+    form: {
+      color: "red",
+    },
+    unit: {
+      marginBottom: theme.spacing(3),
+      width: 50,
     },
   })
 );

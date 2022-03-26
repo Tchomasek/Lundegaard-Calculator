@@ -56,6 +56,10 @@ export const Calculator: React.FC = () => {
   const [spinnerIsVisible, setSpinnerIsVisible] = useState(false);
   const [displayedMoney, setDisplayedMoney] = useState<number>(10000);
   const [displayedMonths, setDisplayedMonths] = useState<number>(24);
+  const [moneyError, setMoneyError] = useState<boolean>(false);
+  const [moneyErrorMessage, setMoneyErrorMessage] = useState<string>(" ");
+  const [monthsError, setMonthsError] = useState<boolean>(false);
+  const [monthsErrorMessage, setMonthsErrorMessage] = useState<string>(" ");
 
   const sendRequest = async () => {
     await axios
@@ -67,7 +71,7 @@ export const Calculator: React.FC = () => {
       })
       .then((response) => {
         if (typeof Number(response.data) === "number") {
-          const roundedResult = Math.round(Number(response.data));
+          const roundedResult = Math.round(Number(response.data) * 100) / 100;
           setResult(roundedResult);
         }
       });
@@ -79,6 +83,8 @@ export const Calculator: React.FC = () => {
   ) => {
     dispatch(updateCalculatorState({ money: newValue as number }));
     setDisplayedMoney(newValue as number);
+    setMoneyError(false);
+    setMoneyErrorMessage(" ");
   };
 
   const changeMoneyTextInput = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -92,6 +98,15 @@ export const Calculator: React.FC = () => {
     setDisplayedMoney(numberValue);
     if (numberValue <= MAX_MONEY && numberValue >= MIN_MONEY) {
       dispatch(updateCalculatorState({ money: numberValue }));
+      setMoneyError(false);
+      setMoneyErrorMessage(" ");
+    } else {
+      setMoneyError(true);
+      if (numberValue < MIN_MONEY) {
+        setMoneyErrorMessage("Příliš nízká částka");
+      } else if (numberValue > MAX_MONEY) {
+        setMoneyErrorMessage("Příliš vysoká částka");
+      }
     }
   };
 
@@ -99,16 +114,16 @@ export const Calculator: React.FC = () => {
     if (displayedMoney < MIN_MONEY) {
       setDisplayedMoney(MIN_MONEY);
       dispatch(updateCalculatorState({ money: MIN_MONEY }));
-      sendRequest();
     } else if (displayedMoney > MAX_MONEY) {
       setDisplayedMoney(MAX_MONEY);
       dispatch(updateCalculatorState({ money: MAX_MONEY }));
-      sendRequest();
     } else {
       const roundedMoney = Math.floor(displayedMoney / 5000) * 5000;
       dispatch(updateCalculatorState({ money: roundedMoney }));
       setDisplayedMoney(roundedMoney);
     }
+    setMoneyError(false);
+    setMoneyErrorMessage(" ");
   };
 
   const sendMoneyTextInputSubmit = (
@@ -124,6 +139,8 @@ export const Calculator: React.FC = () => {
   ) => {
     dispatch(updateCalculatorState({ months: newValue as number }));
     setDisplayedMonths(newValue as number);
+    setMonthsError(false);
+    setMonthsErrorMessage(" ");
   };
 
   const changeMonthsTextInput = (
@@ -139,6 +156,13 @@ export const Calculator: React.FC = () => {
     setDisplayedMonths(numberValue);
     if (numberValue <= MAX_MONTHS && numberValue >= MIN_MONTHS) {
       dispatch(updateCalculatorState({ months: numberValue }));
+    } else {
+      setMonthsError(true);
+      if (numberValue < MIN_MONTHS) {
+        setMonthsErrorMessage("Příliš krátká doba");
+      } else if (numberValue > MAX_MONTHS) {
+        setMonthsErrorMessage("Příliš dlouhá doba");
+      }
     }
   };
 
@@ -152,10 +176,11 @@ export const Calculator: React.FC = () => {
       dispatch(updateCalculatorState({ months: MAX_MONTHS }));
       sendRequest();
     } else {
-      const roundedMonths = Math.floor(displayedMonths / 5000) * 5000;
-      dispatch(updateCalculatorState({ months: roundedMonths }));
-      setDisplayedMonths(roundedMonths);
+      dispatch(updateCalculatorState({ months: displayedMonths }));
+      setDisplayedMonths(displayedMonths);
     }
+    setMonthsError(false);
+    setMonthsErrorMessage(" ");
   };
 
   const sendMonthsTextInputSubmit = (
@@ -205,15 +230,20 @@ export const Calculator: React.FC = () => {
               className={classes.slider}
               marks={MARKS_MONEY}
             />
-            <form onSubmit={sendMoneyTextInputSubmit}>
-              <TextField
-                className={classes.textField}
-                variant="outlined"
-                value={displayedMoney}
-                onChange={changeMoneyTextInput}
-                onBlur={sendMoneyTextInputBlur}
-              />
-            </form>
+            <Grid className={classes.inputWithUnit}>
+              <form onSubmit={sendMoneyTextInputSubmit}>
+                <TextField
+                  className={classes.textField}
+                  variant="outlined"
+                  error={moneyError}
+                  helperText={moneyErrorMessage}
+                  value={displayedMoney}
+                  onChange={changeMoneyTextInput}
+                  onBlur={sendMoneyTextInputBlur}
+                />
+              </form>
+              <Typography className={classes.unit}>Kč</Typography>
+            </Grid>
           </Grid>
         </Grid>
         <Grid container className={classes.row}>
@@ -228,15 +258,23 @@ export const Calculator: React.FC = () => {
               className={classes.slider}
               marks={MARKS_MONTHS}
             />
-            <form onSubmit={sendMonthsTextInputSubmit}>
-              <TextField
-                className={classes.textField}
-                variant="outlined"
-                value={displayedMonths}
-                onChange={changeMonthsTextInput}
-                onBlur={sendMonthsTextInputBlur}
-              />
-            </form>
+            <Grid className={classes.inputWithUnit}>
+              <form
+                onSubmit={sendMonthsTextInputSubmit}
+                className={classes.form}
+              >
+                <TextField
+                  className={classes.textField}
+                  variant="outlined"
+                  value={displayedMonths}
+                  error={monthsError}
+                  helperText={monthsErrorMessage}
+                  onChange={changeMonthsTextInput}
+                  onBlur={sendMonthsTextInputBlur}
+                />
+              </form>
+              <Typography className={classes.unit}>Měsíců</Typography>
+            </Grid>
           </Grid>
         </Grid>
         <FormControl component="fieldset">
@@ -274,7 +312,7 @@ export const Calculator: React.FC = () => {
               <CircularProgress />
             ) : (
               <Typography>
-                {insurance ? (result as number) + 100 : result} Kč
+                {insurance ? (result as number) + INSURANCE : result} Kč
               </Typography>
             )}
           </Grid>
