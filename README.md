@@ -10,8 +10,6 @@ Launch backend server:
     node app.js
 
 
-Launch React Calculator project:
-
 In new terminal from root folder:
 
     yarn start
