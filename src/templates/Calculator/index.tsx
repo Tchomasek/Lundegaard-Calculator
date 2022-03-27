@@ -6,16 +6,15 @@ import {
   Grid,
   Radio,
   RadioGroup,
-  Slider,
-  TextField,
   Typography,
 } from "@material-ui/core";
-import { useDispatch, useSelector } from "react-redux";
 import React, { useEffect, useRef, useState } from "react";
-import axios from "axios";
 
+import { CInput } from "components/CInput";
 import { RootState } from "core/store";
+import { sendRequest } from "core/utils";
 import { updateCalculatorState } from "core/models/calculator";
+import { useDispatch, useSelector } from "react-redux";
 import useStyles from "./useStyles";
 
 const SLIDER_TIMEOUT = 500;
@@ -44,14 +43,14 @@ const MARKS_MONTHS = [
   },
 ];
 const INSURANCE = 100;
+const STEP_MONEY = 5000;
 
 export const Calculator: React.FC = () => {
   const classes = useStyles();
   const dispatch = useDispatch();
-  const { money, months, insurance } = useSelector(
+  const { money, months, insurance, monthlyPayment } = useSelector(
     (state: RootState) => state.calculator
   );
-  const [result, setResult] = useState<number>();
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [spinnerIsVisible, setSpinnerIsVisible] = useState(false);
   const [displayedMoney, setDisplayedMoney] = useState<number>(10000);
@@ -60,22 +59,6 @@ export const Calculator: React.FC = () => {
   const [moneyErrorMessage, setMoneyErrorMessage] = useState<string>(" ");
   const [monthsError, setMonthsError] = useState<boolean>(false);
   const [monthsErrorMessage, setMonthsErrorMessage] = useState<string>(" ");
-
-  const sendRequest = async () => {
-    await axios
-      .get("/calculator", {
-        params: {
-          money: money,
-          months: months,
-        },
-      })
-      .then((response) => {
-        if (typeof Number(response.data) === "number") {
-          const roundedResult = Math.round(Number(response.data) * 100) / 100;
-          setResult(roundedResult);
-        }
-      });
-  };
 
   const adjustMoneySlider = (
     event: React.ChangeEvent<{}>,
@@ -110,6 +93,8 @@ export const Calculator: React.FC = () => {
     }
   };
 
+  // When the money input loses focus or is submited by enter, current value gets rounded down to a number divisible by 5000.
+  // At the same time if the value is out of range, the nearest allowed value is inserted.
   const sendMoneyTextInputBlur = () => {
     if (displayedMoney < MIN_MONEY) {
       setDisplayedMoney(MIN_MONEY);
@@ -126,6 +111,7 @@ export const Calculator: React.FC = () => {
     setMoneyErrorMessage(" ");
   };
 
+  // Same as previous function, only activated by submitting (pressing enter).
   const sendMoneyTextInputSubmit = (
     event: React.FormEvent<HTMLFormElement>
   ) => {
@@ -166,15 +152,13 @@ export const Calculator: React.FC = () => {
     }
   };
 
-  const sendMonthsTextInputBlur = () => {
+  const sendMonthsTextInputBlur = async () => {
     if (displayedMonths < MIN_MONTHS) {
       setDisplayedMonths(MIN_MONTHS);
       dispatch(updateCalculatorState({ months: MIN_MONTHS }));
-      sendRequest();
     } else if (displayedMonths > MAX_MONTHS) {
       setDisplayedMonths(MAX_MONTHS);
       dispatch(updateCalculatorState({ months: MAX_MONTHS }));
-      sendRequest();
     } else {
       dispatch(updateCalculatorState({ months: displayedMonths }));
       setDisplayedMonths(displayedMonths);
@@ -190,22 +174,26 @@ export const Calculator: React.FC = () => {
     sendMonthsTextInputBlur();
   };
 
+  // send request when money or months value changes
   useEffect(() => {
-    if (timer.current !== null) {
-      clearTimeout(timer.current);
-    }
-    // this timer will send API call only when user stoped moving with slider for at least half a second
-    timer.current = setTimeout(() => {
-      setSpinnerIsVisible(true);
-      sendRequest();
-      timer.current = null;
-    }, SLIDER_TIMEOUT);
+    const call = async () => {
+      if (timer.current !== null) {
+        clearTimeout(timer.current);
+      }
+      // this timer will send API call only when user stoped moving with slider for at least half a second
+      timer.current = setTimeout(() => {
+        setSpinnerIsVisible(true);
+        sendRequest(money, months);
+        timer.current = null;
+      }, SLIDER_TIMEOUT);
+    };
+    call();
   }, [money, months]);
 
   // hide spinner when BE answer arrives
   useEffect(() => {
     setSpinnerIsVisible(false);
-  }, [result]);
+  }, [monthlyPayment]);
 
   const adjustInsurance = (event: React.ChangeEvent<HTMLInputElement>) => {
     dispatch(
@@ -218,65 +206,35 @@ export const Calculator: React.FC = () => {
   return (
     <Grid className={classes.root}>
       <Grid container className={classes.inputWrapper}>
-        <Grid container className={classes.row}>
-          <Typography>Kolik si chci půjčit</Typography>
-          <Grid container className={classes.input}>
-            <Slider
-              value={money}
-              min={MIN_MONEY}
-              max={MAX_MONEY}
-              step={5000}
-              onChange={adjustMoneySlider}
-              className={classes.slider}
-              marks={MARKS_MONEY}
-            />
-            <Grid className={classes.inputWithUnit}>
-              <form onSubmit={sendMoneyTextInputSubmit}>
-                <TextField
-                  className={classes.textField}
-                  variant="outlined"
-                  error={moneyError}
-                  helperText={moneyErrorMessage}
-                  value={displayedMoney}
-                  onChange={changeMoneyTextInput}
-                  onBlur={sendMoneyTextInputBlur}
-                />
-              </form>
-              <Typography className={classes.unit}>Kč</Typography>
-            </Grid>
-          </Grid>
-        </Grid>
-        <Grid container className={classes.row}>
-          <Typography>Na jak dlouho</Typography>
-          <Grid container className={classes.input}>
-            <Slider
-              value={months}
-              min={MIN_MONTHS}
-              max={MAX_MONTHS}
-              step={1}
-              onChange={adjustMonthsSlider}
-              className={classes.slider}
-              marks={MARKS_MONTHS}
-            />
-            <Grid className={classes.inputWithUnit}>
-              <form
-                onSubmit={sendMonthsTextInputSubmit}
-                className={classes.form}
-              >
-                <TextField
-                  className={classes.textField}
-                  variant="outlined"
-                  value={displayedMonths}
-                  error={monthsError}
-                  helperText={monthsErrorMessage}
-                  onChange={changeMonthsTextInput}
-                  onBlur={sendMonthsTextInputBlur}
-                />
-              </form>
-              <Typography className={classes.unit}>Měsíců</Typography>
-            </Grid>
-          </Grid>
-        </Grid>
+        <CInput
+          info={"Kolik si chci půjčit"}
+          onSubmit={sendMoneyTextInputSubmit}
+          value={money}
+          min_value={MIN_MONEY}
+          max_value={MAX_MONEY}
+          step={STEP_MONEY}
+          onChangeSlider={adjustMoneySlider}
+          marks={MARKS_MONEY}
+          error={moneyError}
+          helperText={moneyErrorMessage}
+          displayedValue={displayedMoney}
+          onChangeTextInput={changeMoneyTextInput}
+          onBlur={sendMoneyTextInputBlur}
+        />
+        <CInput
+          info={"Na jak dlouho"}
+          onSubmit={sendMonthsTextInputSubmit}
+          value={months}
+          min_value={MIN_MONTHS}
+          max_value={MAX_MONTHS}
+          onChangeSlider={adjustMonthsSlider}
+          marks={MARKS_MONTHS}
+          error={monthsError}
+          helperText={monthsErrorMessage}
+          displayedValue={displayedMonths}
+          onChangeTextInput={changeMonthsTextInput}
+          onBlur={sendMonthsTextInputBlur}
+        />
         <FormControl component="fieldset">
           <Typography>Pojištění proti neschopnosti půjčku splácet</Typography>
           <RadioGroup row value={insurance} onChange={adjustInsurance}>
@@ -312,7 +270,10 @@ export const Calculator: React.FC = () => {
               <CircularProgress />
             ) : (
               <Typography>
-                {insurance ? (result as number) + INSURANCE : result} Kč
+                {insurance
+                  ? (monthlyPayment as number) + INSURANCE
+                  : monthlyPayment}{" "}
+                Kč
               </Typography>
             )}
           </Grid>
