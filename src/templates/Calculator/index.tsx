@@ -45,11 +45,12 @@ const MARKS_MONTHS = [
 ];
 const INSURANCE = 100;
 const STEP_MONEY = 5000;
+const INTEREST_RATE = 0.05;
 
 export const Calculator: React.FC = () => {
   const classes = useStyles();
   const dispatch = useDispatch();
-  const { money, months, insurance, monthlyPayment } = useSelector(
+  const { money, months, insurance, monthlyPayment, totalAmount } = useSelector(
     (state: RootState) => state.calculator
   );
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -60,6 +61,8 @@ export const Calculator: React.FC = () => {
   const [moneyErrorMessage, setMoneyErrorMessage] = useState<string>(" ");
   const [monthsError, setMonthsError] = useState<boolean>(false);
   const [monthsErrorMessage, setMonthsErrorMessage] = useState<string>(" ");
+  const [monthlyPaymentWithInsurance, setMonthlyPaymentWithInsurance] =
+    useState<number>(10000);
 
   const adjustMoneySlider = (
     event: React.ChangeEvent<{}>,
@@ -191,7 +194,7 @@ export const Calculator: React.FC = () => {
     // this timer will send API call only when user stoped moving with slider for at least half a second
     timer.current = setTimeout(() => {
       setSpinnerIsVisible(true);
-      sendRequest(money, months);
+      sendRequest(money, months, INTEREST_RATE);
       timer.current = null;
     }, SLIDER_TIMEOUT);
   }, [money, months]);
@@ -200,6 +203,14 @@ export const Calculator: React.FC = () => {
   useEffect(() => {
     setSpinnerIsVisible(false);
   }, [monthlyPayment]);
+
+  useEffect(() => {
+    setMonthlyPaymentWithInsurance(
+      insurance
+        ? Math.round(((monthlyPayment as number) + INSURANCE) * 100) / 100
+        : Math.round((monthlyPayment as number) * 100) / 100
+    );
+  }, [monthlyPayment, insurance]);
 
   return (
     <Grid className={classes.root}>
@@ -251,8 +262,17 @@ export const Calculator: React.FC = () => {
           </RadioGroup>
         </FormControl>
         <Typography className={classes.info}>
-          Jelikož je půjčování peněz naším koníčkem, nebudeme Vám účtovat žádné
-          úroky.
+          Úroková sazba <strong>5%</strong>, pojištění{" "}
+          <strong>{insurance ? "100" : "0"}Kč/měsíčně</strong>, celkem zaplatíte{" "}
+          <strong>
+            {spinnerIsVisible
+              ? "- "
+              : insurance
+              ? totalAmount + months * INSURANCE
+              : totalAmount}
+            Kč
+          </strong>
+          .
         </Typography>
       </Grid>
       <Grid container classes={{ root: classes.result }}>
@@ -265,14 +285,13 @@ export const Calculator: React.FC = () => {
           <Typography className={classes.monthlyPayText}>
             Měsíčně zaplatíte:
           </Typography>
+
           <Grid className={classes.monthlyPay}>
             {spinnerIsVisible ? (
               <CircularProgress />
             ) : (
               <Typography>
-                {insurance
-                  ? (monthlyPayment as number) + INSURANCE
-                  : monthlyPayment}{" "}
+                {monthlyPaymentWithInsurance}
                 Kč
               </Typography>
             )}

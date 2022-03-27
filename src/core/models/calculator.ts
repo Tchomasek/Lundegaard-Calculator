@@ -5,6 +5,7 @@ export interface CalculatorState {
   months: number;
   insurance: boolean;
   monthlyPayment: number;
+  totalAmount: number;
 }
 
 const initialState = {
@@ -12,6 +13,7 @@ const initialState = {
   months: 24,
   insurance: false,
   monthlyPayment: 0,
+  totalAmount: 0,
 } as CalculatorState;
 
 export const calculatorSlice = createSlice({
