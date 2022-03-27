@@ -18,4 +18,6 @@ In new terminal from root folder:
 
 
 ### Features:
-- Adjust both loan size and loan period using slider or text input.
+- Ability to adjust loan size and loan period using slider or text input.
+- Validate both values after submitting
+- Modern minimalistic design
