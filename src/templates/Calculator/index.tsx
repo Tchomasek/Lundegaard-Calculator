@@ -10,6 +10,7 @@ import {
 } from "@material-ui/core";
 import React, { useEffect, useRef, useState } from "react";
 
+import { CButton } from "components/CButton";
 import { CInput } from "components/CInput";
 import { RootState } from "core/store";
 import { sendRequest } from "core/utils";
@@ -174,27 +175,6 @@ export const Calculator: React.FC = () => {
     sendMonthsTextInputBlur();
   };
 
-  // send request when money or months value changes
-  useEffect(() => {
-    const call = async () => {
-      if (timer.current !== null) {
-        clearTimeout(timer.current);
-      }
-      // this timer will send API call only when user stoped moving with slider for at least half a second
-      timer.current = setTimeout(() => {
-        setSpinnerIsVisible(true);
-        sendRequest(money, months);
-        timer.current = null;
-      }, SLIDER_TIMEOUT);
-    };
-    call();
-  }, [money, months]);
-
-  // hide spinner when BE answer arrives
-  useEffect(() => {
-    setSpinnerIsVisible(false);
-  }, [monthlyPayment]);
-
   const adjustInsurance = (event: React.ChangeEvent<HTMLInputElement>) => {
     dispatch(
       updateCalculatorState({
@@ -202,6 +182,24 @@ export const Calculator: React.FC = () => {
       })
     );
   };
+
+  // send request when money or months value changes
+  useEffect(() => {
+    if (timer.current !== null) {
+      clearTimeout(timer.current);
+    }
+    // this timer will send API call only when user stoped moving with slider for at least half a second
+    timer.current = setTimeout(() => {
+      setSpinnerIsVisible(true);
+      sendRequest(money, months);
+      timer.current = null;
+    }, SLIDER_TIMEOUT);
+  }, [money, months]);
+
+  // hide spinner when BE answer arrives
+  useEffect(() => {
+    setSpinnerIsVisible(false);
+  }, [monthlyPayment]);
 
   return (
     <Grid className={classes.root}>
@@ -220,6 +218,7 @@ export const Calculator: React.FC = () => {
           displayedValue={displayedMoney}
           onChangeTextInput={changeMoneyTextInput}
           onBlur={sendMoneyTextInputBlur}
+          unit={"Kč"}
         />
         <CInput
           info={"Na jak dlouho"}
@@ -234,6 +233,7 @@ export const Calculator: React.FC = () => {
           displayedValue={displayedMonths}
           onChangeTextInput={changeMonthsTextInput}
           onBlur={sendMonthsTextInputBlur}
+          unit={"Měsíců"}
         />
         <FormControl component="fieldset">
           <Typography>Pojištění proti neschopnosti půjčku splácet</Typography>
@@ -278,9 +278,7 @@ export const Calculator: React.FC = () => {
             )}
           </Grid>
         </Grid>
-        <Button variant="contained" color="primary">
-          Pokračovat
-        </Button>
+        <CButton info={"Pokračovat"} />
       </Grid>
     </Grid>
   );

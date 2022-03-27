@@ -20,11 +20,6 @@ const useStyles = makeStyles((theme: Theme) =>
       border: "1px solid rgba(0, 0, 0, 0.4)",
       borderRadius: 4,
     },
-    row: {
-      padding: theme.spacing(2),
-      flexWrap: "nowrap",
-      flexDirection: "column",
-    },
     result: {
       width: theme.spacing(25),
       height: theme.spacing(55),
@@ -35,29 +30,6 @@ const useStyles = makeStyles((theme: Theme) =>
       borderRadius: 4,
       borderLeft: "1px solid rgba(0, 0, 0, 0.4)",
       paddingLeft: 16,
-    },
-    slider: {
-      margin: theme.spacing(1),
-    },
-    input: {
-      display: "flex",
-      flexDirection: "row",
-      flexWrap: "nowrap",
-      alignItems: "center",
-    },
-    inputWithUnit: {
-      display: "flex",
-      alignItems: "center",
-    },
-    textField: {
-      width: theme.spacing(15),
-      display: "flex",
-      margin: theme.spacing(2),
-      marginLeft: theme.spacing(4),
-      "& .MuiFormHelperText-root": {
-        color: "red",
-        margin: 0,
-      },
     },
     monthlyPay: {
       height: theme.spacing(12),
@@ -70,13 +42,6 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     inputWrapper: {
       flexDirection: "column",
-    },
-    form: {
-      color: "red",
-    },
-    unit: {
-      marginBottom: theme.spacing(3),
-      width: 50,
     },
   })
 );

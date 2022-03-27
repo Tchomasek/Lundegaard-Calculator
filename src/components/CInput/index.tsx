@@ -34,6 +34,7 @@ export interface CInputProps {
   displayedValue: number;
   onChangeTextInput: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onBlur: () => void;
+  unit: string;
 }
 
 export const CInput: React.FC<CInputProps> = ({
@@ -50,12 +51,13 @@ export const CInput: React.FC<CInputProps> = ({
   displayedValue,
   onChangeTextInput,
   onBlur,
+  unit,
 }: CInputProps) => {
   const classes = useStyles();
 
   return (
     <Grid container className={classes.row}>
-      <Typography>{info}</Typography>
+      <Typography variant="h6">{info}</Typography>
       <Grid container className={classes.input}>
         <Slider
           value={value}
@@ -78,7 +80,7 @@ export const CInput: React.FC<CInputProps> = ({
               onBlur={onBlur}
             />
           </form>
-          <Typography className={classes.unit}>Kč</Typography>
+          <Typography className={classes.unit}>{unit}</Typography>
         </Grid>
       </Grid>
     </Grid>

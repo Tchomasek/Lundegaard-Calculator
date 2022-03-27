@@ -1,4 +1,3 @@
-import "./App.css";
 import { Calculator } from "templates";
 import { Provider } from "react-redux";
 import React from "react";
