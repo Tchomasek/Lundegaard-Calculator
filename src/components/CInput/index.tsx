@@ -56,7 +56,7 @@ export const CInput: React.FC<CInputProps> = ({
   const classes = useStyles();
 
   return (
-    <Grid container className={classes.row}>
+    <Grid data-testid="CInput" container className={classes.row}>
       <Typography variant="h6">{info}</Typography>
       <Grid container className={classes.input}>
         <Slider

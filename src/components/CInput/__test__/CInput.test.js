@@ -28,12 +28,28 @@ it("renders without crashing", () => {
   );
 });
 
-// it("renders button correctly", () => {
-//   const { getByTestId } = render(<CInput info={"Click"} />);
-//   expect(getByTestId("CButton")).toHaveTextContent("Click");
-// });
+it("renders button correctly", () => {
+  const { getByTestId } = render(
+    <CInput
+      info={"Info"}
+      onSubmit={() => {}}
+      value={0}
+      min_value={0}
+      max_value={1}
+      onChangeSlider={() => {}}
+      marks={[]}
+      error={false}
+      helperText={""}
+      displayedValue={0}
+      onChangeTextInput={() => {}}
+      onBlur={() => {}}
+      unit={""}
+    />
+  );
+  expect(getByTestId("CInput")).toHaveTextContent("Info");
+});
 
-// it("matches snapshot", () => {
-//   const button = renderer.create(<CInput info={"Click"} />).toJSON;
-//   expect(button).toMatchSnapshot();
-// });
+it("matches snapshot", () => {
+  const button = renderer.create(<CInput info={"Click"} />).toJSON;
+  expect(button).toMatchSnapshot();
+});
