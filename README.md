@@ -15,3 +15,7 @@ Launch React Calculator project:
 In new terminal from root folder:
 
     yarn start
+
+
+### Features:
+- Adjust both loan size and loan period using slider or text input.
