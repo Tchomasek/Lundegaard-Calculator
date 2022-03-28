@@ -1,4 +1,3 @@
-import { useDispatch } from "react-redux";
 import axios from "axios";
 
 import { updateCalculatorState } from "./models";

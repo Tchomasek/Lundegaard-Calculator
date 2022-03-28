@@ -50,6 +50,6 @@ it("renders button correctly", () => {
 });
 
 it("matches snapshot", () => {
-  const button = renderer.create(<CInput info={"Click"} />).toJSON;
+  const button = renderer.create(<CInput info={"Click"} />).toJSON();
   expect(button).toMatchSnapshot();
 });
