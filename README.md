@@ -21,5 +21,10 @@ Run Jest tests:
 
 ### Features:
 - Ability to adjust loan size and loan period using slider or text input.
-- Validate both values after submitting
-- Modern minimalistic design
+- API call is sent only after user stoped moving slider for half a second to prevent sending multiple API calls in short period of time.
+- Validate both values - too high, too low, text is not allowed at all.
+- If inserted value is out of range, the nearest allowed value is used and send via API after submiting by Enter or removing focus from text input.
+- After sending API call there is half a second of simulated latency before response arrives - spinner is displayed instead of result value.
+- Instant adjustment of monthly payback based on insurance option (no need for API call).
+- Simplified calculation of interest.
+- Simple rendering and snapshot Jest tests for two components.
