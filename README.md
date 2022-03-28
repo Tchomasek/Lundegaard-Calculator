@@ -4,15 +4,19 @@ Calculator that takes loan size and load period and calculates monthly repaynemt
 ### How to launch this application:
 
 
-Launch backend server:
+Run backend server:
 
     cd backend
     node app.js
 
 
-In new terminal from root folder:
+Run React App:
 
     yarn start
+
+Run Jest tests:
+    
+    npm test
 
 
 ### Features:
