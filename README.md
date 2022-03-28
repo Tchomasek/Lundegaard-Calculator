@@ -27,4 +27,5 @@ Run Jest tests:
 - After sending API call there is half a second of simulated latency before response arrives - in the meantime spinner is displayed instead of result value.
 - Instant adjustment of monthly payback based on insurance option (no need for API call).
 - Simplified calculation of interest.
+- React part written in Typescript.
 - Simple rendering and snapshot Jest tests for two components.
