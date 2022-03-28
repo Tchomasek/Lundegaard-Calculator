@@ -62,7 +62,7 @@ export const Calculator: React.FC = () => {
   const [monthsError, setMonthsError] = useState<boolean>(false);
   const [monthsErrorMessage, setMonthsErrorMessage] = useState<string>(" ");
   const [monthlyPaymentWithInsurance, setMonthlyPaymentWithInsurance] =
-    useState<number>(10000);
+    useState<number>(0);
 
   const adjustMoneySlider = (
     event: React.ChangeEvent<{}>,
@@ -204,11 +204,13 @@ export const Calculator: React.FC = () => {
     setSpinnerIsVisible(false);
   }, [monthlyPayment]);
 
+  const x = monthlyPayment.toFixed(2);
+
   useEffect(() => {
     setMonthlyPaymentWithInsurance(
       insurance
-        ? Math.round(((monthlyPayment as number) + INSURANCE) * 100) / 100
-        : Math.round((monthlyPayment as number) * 100) / 100
+        ? Number(((monthlyPayment as number) + INSURANCE).toFixed(2))
+        : Number(monthlyPayment.toFixed(2))
     );
   }, [monthlyPayment, insurance]);
 

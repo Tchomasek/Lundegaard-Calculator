@@ -11,7 +11,7 @@ export interface CalculatorState {
 const initialState = {
   money: 10000,
   months: 24,
-  insurance: false,
+  insurance: true,
   monthlyPayment: 0,
   totalAmount: 0,
 } as CalculatorState;
