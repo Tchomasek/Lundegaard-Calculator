@@ -1,5 +1,6 @@
 # Lundegaard Calculator
 Calculator that takes loan size and load period and calculates monthly repaynemt amount. It also takes in account the option for insolvency insurance.
+
 https://lundegaard-calculator.netlify.app/
 
 ### How to launch this application:
