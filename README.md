@@ -31,5 +31,6 @@ Run Jest tests:
 - Simplified calculation of interest.
 - React part written in Typescript.
 - Simple rendering and snapshot Jest tests for two components.
+- App is deployed on Netlify
 
 ![alt text](https://github.com/Tchomasek/Lundegaard-Calculator/blob/master/calculator_prtscr.png)
